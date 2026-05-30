@@ -61,10 +61,13 @@
   .day.active .badge{color:#F4B468;}
 
   .views{display:flex;gap:4px;margin-top:12px;}
-  .view-tab{flex:1;text-align:center;padding:9px 2px;cursor:pointer;font-size:12px;font-weight:600;color:var(--ink-soft);border-bottom:2px solid transparent;transition:all .15s;}
+  .view-tab{flex:1;text-align:center;padding:9px 0;cursor:pointer;font-size:13px;font-weight:600;color:var(--ink-soft);border-bottom:2px solid transparent;transition:all .15s;}
   .view-tab.active{color:var(--amber-deep);border-color:var(--amber);}
 
   .content{padding:16px 14px 0;}
+  .subtabs{display:inline-flex;background:var(--paper-2);border-radius:11px;padding:3px;margin:0 0 16px;gap:2px;}
+  .subtab{border:none;background:none;font-family:'IBM Plex Sans';font-size:12.5px;font-weight:600;color:var(--ink-soft);padding:7px 18px;border-radius:9px;cursor:pointer;transition:all .15s;}
+  .subtab.active{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.1);}
   .day-meta{display:flex;justify-content:space-between;align-items:center;margin:4px 4px 14px;}
   .day-meta .title{font-family:'Bricolage Grotesque',sans-serif;font-weight:600;font-size:18px;}
   .day-meta .count{font-size:12px;color:var(--ink-soft);font-weight:500;}
@@ -275,7 +278,7 @@
   const DIAS_LABEL={SEG:"Seg",TER:"Ter",QUA:"Qua",QUI:"Qui",SEX:"Sex",SAB:"Sáb",DOM:"Dom"};
   const SEDE="RUA MAXWELL, 418 - ANDARAÍ, RIO DE JANEIRO";  // origem das rotas
   const OPS_VALIDAS=["MONTAGEM","RECOLHA","ENTREGA","RECARREGAR"];
-  let estado={dia:"SAB",view:"rotas",vendedor:""};
+  let estado={dia:"SAB",view:"rotas",rotasView:"detalhada",vendedor:""};
 
   function opClass(op){return OPS_VALIDAS.includes(op)?op:"OUTRO";}
   function mapsLink(end){return "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(end);}
@@ -299,9 +302,16 @@
 
     let body="";
     if(estado.view==="rotas"){
-      body=renderRotas(rotas,totalParadas);
-    }else if(estado.view==="quadro"){
-      body=renderQuadro(rotas);
+      if(rotas.length===0){
+        body=renderRotas(rotas,totalParadas);
+      }else{
+        const ger=estado.rotasView==="geral";
+        const sub=`<div class="subtabs">
+          <button class="subtab ${ger?'':'active'}" onclick="setRotasView('detalhada')">Detalhada</button>
+          <button class="subtab ${ger?'active':''}" onclick="setRotasView('geral')">Geral</button>
+        </div>`;
+        body=sub+(ger?renderQuadro(rotas):renderRotas(rotas,totalParadas));
+      }
     }else if(estado.view==="equip"){
       body=renderEquip();
     }else{
@@ -315,8 +325,7 @@
         <div class="days">${dayBtns}</div>
         <div class="views">
           <div class="view-tab ${estado.view==='rotas'?'active':''}" onclick="setView('rotas')">Rotas</div>
-          <div class="view-tab ${estado.view==='quadro'?'active':''}" onclick="setView('quadro')">Quadro</div>
-          <div class="view-tab ${estado.view==='equip'?'active':''}" onclick="setView('equip')">Equip.</div>
+          <div class="view-tab ${estado.view==='equip'?'active':''}" onclick="setView('equip')">Equipamentos</div>
           <div class="view-tab ${estado.view==='vend'?'active':''}" onclick="setView('vend')">Vendedor</div>
         </div>
       </div>
@@ -475,6 +484,7 @@
 
   function setDia(d){estado.dia=d;render();}
   function setView(v){estado.view=v;render();}
+  function setRotasView(v){estado.rotasView=v;render();}
   function setVendedor(v){estado.vendedor=v;render();}
   function detPanelHtml(p){
     const d=DETALHES[p.pedido]; if(!d) return '';
