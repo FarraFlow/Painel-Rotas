@@ -374,7 +374,7 @@
         // Produção: usar r.link_maps (célula "LINK MAPA:" do bloco, já começa na sede).
         // Fallback do protótipo: montar a rota a partir da SEDE.
         const mapAll = r.link_maps || ("https://www.google.com/maps/dir/"+[SEDE,...r.paradas.filter(p=>p.endereco).map(p=>p.endereco)].map(e=>encodeURIComponent(e)).join("/"));
-        return `<div class="rota ${i>0?'collapsed':''}" id="rota-${i}">
+        return `<div class="rota collapsed" id="rota-${i}">
           <div class="rota-head" onclick="toggle(${i})">
             <div class="rota-num">${r.num}</div>
             <div class="rota-info"><div class="crew">${crew}</div><div class="meta">ROTA ${r.num} · ${r.paradas.length} paradas</div></div>
