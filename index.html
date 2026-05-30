@@ -130,6 +130,7 @@
   .q-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;-webkit-overflow-scrolling:touch;background:var(--card);}
   .q-table{border-collapse:collapse;width:100%;font-size:11.5px;white-space:nowrap;}
   .q-table th{background:var(--ink);color:var(--paper);font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:0.4px;padding:8px 11px;text-align:left;}
+  .q-head td{background:var(--ink);color:var(--paper);font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:0.4px;padding:7px 11px;border-bottom:none;}
   .q-table td{padding:7px 11px;border-bottom:1px solid var(--line);vertical-align:middle;}
   .q-table tbody tr:last-child td{border-bottom:none;}
   .q-mono{font-family:'IBM Plex Mono',monospace;}
@@ -174,6 +175,14 @@
   .sketch-tag{display:inline-block;background:#FFF3CD;color:#8A6D1B;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;padding:3px 8px;border-radius:6px;margin-left:8px;vertical-align:middle;}
 
   .footnote{text-align:center;font-size:11px;color:var(--ink-soft);margin-top:22px;padding:0 20px;line-height:1.5;}
+  @media (orientation:landscape) and (max-height:520px){
+    .brand,.updated{display:none;}
+    .topbar{padding:8px 14px 4px;}
+    .days{margin-top:0;}
+    .day{padding:5px 11px;font-size:12px;}
+    .views{margin-top:8px;}
+    .view-tab{padding:6px 0;}
+  }
 </style>
 
 <script>
@@ -384,6 +393,7 @@
     rotas.forEach(r=>{
       const crew=r.ajudante?`${r.motorista} / ${r.ajudante}`:r.motorista;
       rows+=`<tr class="q-rota"><td colspan="${cols.length}">ROTA ${r.num} \u00b7 ${crew}</td></tr>`;
+      rows+=`<tr class="q-head">${cols.map(c=>`<td>${c}</td>`).join('')}</tr>`;
       r.paradas.forEach(p=>{
         rows+=`<tr>
           <td class="q-mono">${p.pedido&&p.pedido!=='\u2014'?p.pedido:'\u2014'}</td>
@@ -401,7 +411,6 @@
     });
     return `<p class="q-hint">\u2194 Arraste para o lado para ver todas as colunas \u00b7 gire o celular para ver mais.</p>
       <div class="q-wrap"><table class="q-table">
-        <thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead>
         <tbody>${rows}</tbody>
       </table></div>`;
   }
