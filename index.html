@@ -420,12 +420,13 @@
     const p=window.__vendList[idx];
     const j=janela(p.previo);
     const isRec=p.op==="RECOLHA";
-    const acao=isRec?"a recolha dos seus equipamentos":"sua entrega de hoje";
+    const acao=isRec?"a recolha dos seus equipamentos":"a sua entrega";
     const labelJ=isRec?"Janela de recolha":"Janela de entrega";
     const equipe=p.motorista?`${p.motorista}${p.ajudante?` e ${p.ajudante}`:''}`:'';
     const itens=(p.itens||[]).map(i=>'• '+i).join('\n');
     const itensLbl=isRec?"Equipamentos a recolher":"Itens do pedido";
-    const msg=`Olá! Confirmando ${acao} 🍺\n\n*${p.cliente}*\n📍 ${p.endereco}\n🕐 ${labelJ}: *${j||'a combinar'}*\n${equipe?`🚚 Equipe responsável: ${equipe}\n`:''}\n*${itensLbl}:*\n${itens}\n\nQualquer dúvida, estou à disposição!`;
+    const diaData=(DADOS.dia_titulo||'').includes(',')?DADOS.dia_titulo.split(',').slice(1).join(',').trim():(DADOS.dia_titulo||'');
+    const msg=`Olá! Confirmada ${acao} para o dia ${diaData} 🍻\n\n*${p.cliente}*\n\n📍 ${p.endereco}\n\n🕐 ${labelJ}: *${j||'a combinar'}*\n\n${equipe?`🚚 Equipe responsável: ${equipe}\n\n`:''}*${itensLbl}:*\n${itens}\n\nQualquer dúvida, estou à disposição!`;
     window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
   }
 
