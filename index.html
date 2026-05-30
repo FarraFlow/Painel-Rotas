@@ -61,7 +61,7 @@
   .day.active .badge{color:#F4B468;}
 
   .views{display:flex;gap:4px;margin-top:12px;}
-  .view-tab{flex:1;text-align:center;padding:9px 0;cursor:pointer;font-size:13px;font-weight:600;color:var(--ink-soft);border-bottom:2px solid transparent;transition:all .15s;}
+  .view-tab{flex:1;text-align:center;padding:9px 2px;cursor:pointer;font-size:12px;font-weight:600;color:var(--ink-soft);border-bottom:2px solid transparent;transition:all .15s;}
   .view-tab.active{color:var(--amber-deep);border-color:var(--amber);}
 
   .content{padding:16px 14px 0;}
@@ -123,6 +123,17 @@
   .det-meta{font-size:9.5px;color:var(--ink-soft);}
   .rota-foot a{flex:1;text-align:center;text-decoration:none;font-size:13px;font-weight:700;padding:9px;border-radius:9px;background:var(--ink);color:var(--paper);display:flex;align-items:center;justify-content:center;gap:7px;}
 
+  .q-hint{font-size:11.5px;color:var(--ink-soft);margin:0 4px 12px;}
+  .q-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;-webkit-overflow-scrolling:touch;background:var(--card);}
+  .q-table{border-collapse:collapse;width:100%;font-size:11.5px;white-space:nowrap;}
+  .q-table th{background:var(--ink);color:var(--paper);font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:0.4px;padding:8px 11px;text-align:left;}
+  .q-table td{padding:7px 11px;border-bottom:1px solid var(--line);vertical-align:middle;}
+  .q-table tbody tr:last-child td{border-bottom:none;}
+  .q-mono{font-family:'IBM Plex Mono',monospace;}
+  .q-cli{font-weight:600;}
+  .q-ev{color:var(--amber-deep);font-weight:600;}
+  .q-rota td{background:var(--paper-2);font-weight:700;font-size:11px;letter-spacing:0.3px;color:var(--ink);border-top:2px solid var(--line-strong);font-family:'IBM Plex Mono',monospace;}
+  .q-table .op{font-size:10px;padding:2px 7px;}
   .empty{text-align:center;padding:70px 20px;color:var(--ink-soft);}
   .empty .big{font-family:'Bricolage Grotesque',sans-serif;font-size:40px;color:var(--line-strong);margin-bottom:8px;}
 
@@ -289,6 +300,8 @@
     let body="";
     if(estado.view==="rotas"){
       body=renderRotas(rotas,totalParadas);
+    }else if(estado.view==="quadro"){
+      body=renderQuadro(rotas);
     }else if(estado.view==="equip"){
       body=renderEquip();
     }else{
@@ -302,7 +315,8 @@
         <div class="days">${dayBtns}</div>
         <div class="views">
           <div class="view-tab ${estado.view==='rotas'?'active':''}" onclick="setView('rotas')">Rotas</div>
-          <div class="view-tab ${estado.view==='equip'?'active':''}" onclick="setView('equip')">Equipamentos</div>
+          <div class="view-tab ${estado.view==='quadro'?'active':''}" onclick="setView('quadro')">Quadro</div>
+          <div class="view-tab ${estado.view==='equip'?'active':''}" onclick="setView('equip')">Equip.</div>
           <div class="view-tab ${estado.view==='vend'?'active':''}" onclick="setView('vend')">Vendedor</div>
         </div>
       </div>
@@ -352,6 +366,35 @@
           <div class="rota-foot"><a href="${mapAll}" target="_blank" rel="noopener">${pinSvg} Abrir rota no Maps</a></div>
         </div>`;
       }).join("");
+  }
+
+  function renderQuadro(rotas){
+    if(rotas.length===0) return `<div class="empty"><div class="big">\u2205</div>Sem rotas para ${DIAS_LABEL[estado.dia]}.</div>`;
+    const cols=['Pedido','Vendedor','Opera\u00e7\u00e3o','Empresa','Local','Regi\u00e3o','Cliente','Hr. Pr\u00e9vio','A partir','Evento'];
+    let rows='';
+    rotas.forEach(r=>{
+      const crew=r.ajudante?`${r.motorista} / ${r.ajudante}`:r.motorista;
+      rows+=`<tr class="q-rota"><td colspan="${cols.length}">ROTA ${r.num} \u00b7 ${crew}</td></tr>`;
+      r.paradas.forEach(p=>{
+        rows+=`<tr>
+          <td class="q-mono">${p.pedido&&p.pedido!=='\u2014'?p.pedido:'\u2014'}</td>
+          <td>${p.vendedor||'\u2014'}</td>
+          <td><span class="op ${opClass(p.op)}">${p.op}</span></td>
+          <td>${p.empresa||'\u2014'}</td>
+          <td>${p.local||'\u2014'}</td>
+          <td class="q-mono">${p.regiao||'\u2014'}</td>
+          <td class="q-cli">${p.cliente}</td>
+          <td class="q-mono">${p.previo||'\u2014'}</td>
+          <td class="q-mono">${p.partir||'\u2014'}</td>
+          <td class="q-mono q-ev">${p.evento||'\u2014'}</td>
+        </tr>`;
+      });
+    });
+    return `<p class="q-hint">\u2194 Arraste para o lado para ver todas as colunas \u00b7 gire o celular para ver mais.</p>
+      <div class="q-wrap"><table class="q-table">
+        <thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead>
+        <tbody>${rows}</tbody>
+      </table></div>`;
   }
 
   function renderEquip(){
