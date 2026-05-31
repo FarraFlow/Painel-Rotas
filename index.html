@@ -361,19 +361,21 @@
   function statusAtivo(p){ return realPedido(p.pedido) && String(p.op||'').trim()!==''; }
   function statusKey(p){ return p.pedido+'|'+String(p.op||'').toUpperCase().trim(); }
 
-  // Alterna ⬜ -> ✅ -> ❌ -> ⬜, salva no Apps Script (otimista: reverte se falhar).
-  async function toggleStatus(pedido, operacao){
+  function iconStatus(st){ return st==='ok'?'✅':(st==='nao'?'❌':'⬜'); }
+
+  // Alterna ⬜ -> ✅ -> ❌ -> ⬜. Atualiza só o botão (preserva a rolagem da tabela).
+  async function toggleStatus(el, pedido, operacao){
     const key=pedido+'|'+operacao;
     const atual=STATUS_MAP[key]||'';
     const prox = atual===''?'ok':(atual==='ok'?'nao':'');
     if(prox==='') delete STATUS_MAP[key]; else STATUS_MAP[key]=prox;
-    render();
+    el.textContent=iconStatus(prox);
     try{
       const r=await fetch(APPS_URL,{method:'POST',body:JSON.stringify({acao:'salvar_status',pedido:pedido,operacao:operacao,status:prox})}).then(x=>x.json());
       if(!r||!r.ok) throw new Error((r&&r.mensagem)||'falhou');
     }catch(e){
       if(atual==='') delete STATUS_MAP[key]; else STATUS_MAP[key]=atual;
-      render();
+      el.textContent=iconStatus(atual);
       alert('Não consegui salvar o status. Verifique a internet e tente de novo.');
     }
   }
@@ -381,13 +383,13 @@
   function statusCell(p){
     if(!statusAtivo(p)) return `<td class="q-st q-st-off">·</td>`;
     const st=STATUS_MAP[statusKey(p)]||'';
-    const icon = st==='ok'?'✅':(st==='nao'?'❌':'⬜');
-    return `<td class="q-st"><button class="st-btn" onclick="toggleStatus('${p.pedido}','${String(p.op||'').toUpperCase().trim()}')">${icon}</button></td>`;
+    return `<td class="q-st"><button class="st-btn" onclick="toggleStatus(this,'${p.pedido}','${String(p.op||'').toUpperCase().trim()}')">${iconStatus(st)}</button></td>`;
   }
   const DIAS_LABEL={SEG:"Seg",TER:"Ter",QUA:"Qua",QUI:"Qui",SEX:"Sex",SAB:"Sáb",DOM:"Dom"};
   const SEDE="RUA MAXWELL, 418 - ANDARAÍ, RIO DE JANEIRO";  // origem das rotas
   const OPS_VALIDAS=["MONTAGEM","RECOLHA","ENTREGA","RECARREGAR"];
-  let estado={dia:"SAB",view:"rotas",rotasView:"detalhada",vendedor:""};
+  const DOW=["DOM","SEG","TER","QUA","QUI","SEX","SAB"];
+  let estado={dia:DOW[new Date().getDay()],view:"rotas",rotasView:"detalhada",vendedor:""};
 
   function opClass(op){return OPS_VALIDAS.includes(op)?op:"OUTRO";}
   function mapsLink(end){return "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(end);}
