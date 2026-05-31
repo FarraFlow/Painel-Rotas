@@ -175,6 +175,12 @@
   .sketch-tag{display:inline-block;background:#FFF3CD;color:#8A6D1B;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;padding:3px 8px;border-radius:6px;margin-left:8px;vertical-align:middle;}
 
   .footnote{text-align:center;font-size:11px;color:var(--ink-soft);margin-top:22px;padding:0 20px;line-height:1.5;}
+  .loadscr{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;min-height:70vh;color:var(--ink-soft);font-size:14px;text-align:center;padding:0 24px;}
+  .loadscr small{font-size:11px;opacity:.8;max-width:300px;word-break:break-word;}
+  .ld-dot{width:26px;height:26px;border-radius:50%;border:3px solid var(--line-strong);border-top-color:var(--amber);animation:spin 0.8s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .ld-x{width:34px;height:34px;border-radius:50%;background:#FBEAEA;color:#C0392B;display:grid;place-items:center;font-family:'Bricolage Grotesque';font-weight:800;font-size:20px;}
+  .ld-btn{margin-top:6px;border:none;background:var(--ink);color:var(--paper);font-weight:600;font-size:13px;padding:9px 18px;border-radius:9px;cursor:pointer;}
   @media (orientation:landscape) and (max-height:520px){
     .brand,.updated{display:none;}
     .topbar{padding:8px 14px 4px;}
@@ -186,104 +192,119 @@
 </style>
 
 <script>
-  const DADOS = {
-    dia_titulo:"Sábado, 30 de maio",
-    atualizado:"30/05/2026 às 07:42",
-    dias:{
-      SEG:[],TER:[],QUA:[],QUI:[],SEX:[],
-      SAB:[
-        {num:1,motorista:"RODRIGO",ajudante:"MAILTON",paradas:[
-          {pedido:"30835",vendedor:"MARCOS MANGIN",op:"MONTAGEM",empresa:"BREWTECO",local:"HUMAITÁ",regiao:"ZS",cliente:"ELISA FERREIRA",previo:"09:00",partir:"08H",evento:"10H",endereco:"LARGO DOS LEÕES, 140 - HUMAITÁ, RIO DE JANEIRO",itens:["1 chopeira elétrica 110V","1 extratora","1 cilindro CO²","1 barril 50L"]},
-          {pedido:"14134",vendedor:"MARCUS VINICIUS",op:"MONTAGEM",empresa:"NOSSO CHOPE",local:"COPACABANA",regiao:"ZS",cliente:"LUIZ HENRIQUE P. F. DE MELLO",previo:"09:45",partir:"08H",evento:"12H",endereco:"AVENIDA ATLÂNTICA, POSTO 3 - COPACABANA, RIO DE JANEIRO",itens:["1 chopeira elétrica 110V","1 extratora","1 cilindro CO²","1 barril 30L"]},
-          {pedido:"30935",vendedor:"MARCOS MANGIN",op:"MONTAGEM",empresa:"BREWTECO",local:"LEBLON",regiao:"ZS",cliente:"JOANA BEUSE",previo:"10:45",partir:"08H",evento:"12H",endereco:"RUA TIMÓTEO DA COSTA, 1110 - LEBLON, RIO DE JANEIRO",itens:["1 chopeira a gelo 2 vias","2 extratoras","2 cilindros CO²","2 barris 50L"]},
-          {pedido:"14105",vendedor:"MARCUS VINICIUS",op:"MONTAGEM",empresa:"MISTURA",local:"GÁVEA",regiao:"ZS",cliente:"BRUNA CARNEIRO DA SILVA RAMOS",previo:"11:30",partir:"08H",evento:"16H",endereco:"RUA PROFESSOR MANUEL FERREIRA, 127 - GÁVEA, RIO DE JANEIRO",itens:["1 chopeira elétrica 110V","1 extratora","1 cilindro CO²","1 barril 30L"]},
-          {pedido:"30925",vendedor:"FABRIZIO RUIZ",op:"MONTAGEM",empresa:"CHOPP IN",local:"JARDIM BOTÂNICO",regiao:"ZS",cliente:"HENRIQUE BOTKAY",previo:"12:15",partir:"08H",evento:"15H",endereco:"RUA EUCLIDES FIGUEIREDO, 91 - JARDIM BOTÂNICO, RIO DE JANEIRO",itens:["1 chopeira a gelo 2 vias","1 extratora","1 cilindro CO²","1 barril 50L"]},
-          {pedido:"30811",vendedor:"MARCELO SIMÕES",op:"MONTAGEM",empresa:"CHOPP IN",local:"COPACABANA",regiao:"ZS",cliente:"LHAN LEAL",previo:"13:00",partir:"08H",evento:"16H",endereco:"RUA XAVIER DA SILVEIRA, 115 - COPACABANA, RIO DE JANEIRO",itens:["1 chopeira elétrica 110V","1 extratora","1 cilindro CO²","1 barril 50L"]},
-        ]},
-        {num:2,motorista:"BENEDITO",ajudante:"COCHOQUE",paradas:[
-          {pedido:"30896",vendedor:"MARCOS MANGIN",op:"MONTAGEM",empresa:"BREWTECO",local:"BOTAFOGO",regiao:"ZS",cliente:"THIAGO DA SILVA PIRES",previo:"09:00",partir:"08H",evento:"11H",endereco:"RUA GENERAL SEVERIANO, 201 - BOTAFOGO, RIO DE JANEIRO",itens:["1 chopeira a gelo 2 vias","1 extratora","1 cilindro CO²","1 barril 20L"]},
-          {pedido:"30882",vendedor:"MARCOS MANGIN",op:"MONTAGEM",empresa:"BREWTECO",local:"LARANJEIRAS",regiao:"ZS",cliente:"MICHEL GROSSMANN",previo:"09:45",partir:"08H",evento:"11H",endereco:"RUA LARANJEIRAS, 540 - LARANJEIRAS, RIO DE JANEIRO",itens:["1 chopeira elétrica 110V","1 extratora","1 cilindro CO²","1 barril 30L"]},
-          {pedido:"30929",vendedor:"MARCELO SIMÕES",op:"MONTAGEM",empresa:"CHOPP IN",local:"LARANJEIRAS",regiao:"ZS",cliente:"MARIA PIA",previo:"10:30",partir:"08H",evento:"12H",endereco:"RUA ENGENHEIRO ALFREDO MODRACH, 145 - LARANJEIRAS, RIO DE JANEIRO",itens:["1 chopeira elétrica 110V","1 extratora","1 cilindro CO²","1 barril 30L"]},
-          {pedido:"14055",vendedor:"BERNARDO",op:"MONTAGEM",empresa:"MISTURA",local:"BOTAFOGO",regiao:"ZS",cliente:"JOÃO RAMOS",previo:"11:15",partir:"08H",evento:"13H",endereco:"RUA VOLUNTÁRIOS DA PÁTRIA, 48 - BOTAFOGO, RIO DE JANEIRO",itens:["1 chopeira elétrica 110V","2 extratoras","2 cilindros CO²","2 barris 50L"]},
-          {pedido:"14111",vendedor:"MARCUS VINICIUS",op:"MONTAGEM",empresa:"MISTURA",local:"BOTAFOGO",regiao:"ZS",cliente:"VANESSA MIRANDA",previo:"12:00",partir:"08H",evento:"16H",endereco:"TRAVESSA VISCONDE DE MORAIS, 180 - BOTAFOGO, RIO DE JANEIRO",itens:["1 chopeira elétrica 110V","1 extratora","1 cilindro CO²","1 barril 30L"]},
-          {pedido:"14146",vendedor:"BERNARDO",op:"MONTAGEM",empresa:"MISTURA",local:"BOTAFOGO",regiao:"ZS",cliente:"VINICIUS FIGUEIREDO",previo:"12:45",partir:"08H",evento:"16H",endereco:"RUA EDUARDO GUINLE, 55 - BOTAFOGO, RIO DE JANEIRO",itens:["1 chopeira elétrica 110V","1 extratora","1 cilindro CO²","1 barril 30L"]},
-        ]},
-        {num:3,motorista:"ROBERTO",ajudante:"AJ. ROBERTO",paradas:[
-          {pedido:"30914",vendedor:"MARCOS MANGIN",op:"MONTAGEM",empresa:"BREWTECO",local:"FREGUESIA (JPA)",regiao:"JPA",cliente:"NATHALIA NASCIMENTO COSTA",previo:"09:00",partir:"08H",evento:"10H",endereco:"RUA PAULO EMÍLIO GOMES, 350 - FREGUESIA (JACAREPAGUÁ), RIO DE JANEIRO",itens:["1 chopeira elétrica 110V","1 extratora","1 cilindro CO²","1 barril 30L"]},
-          {pedido:"14109",vendedor:"MARCUS VINICIUS",op:"MONTAGEM",empresa:"MISTURA",local:"FREGUESIA (JPA)",regiao:"JPA",cliente:"CHARLES SCARPATI FIORAVANTE",previo:"09:45",partir:"08H",evento:"10H",endereco:"RUA GEMINIANO GOIS, 882 - FREGUESIA (JACAREPAGUÁ), RIO DE JANEIRO",itens:["1 chopeira a gelo 2 vias","1 extratora","1 cilindro CO²","1 barril 20L"]},
-          {pedido:"14131",vendedor:"MARCUS VINICIUS",op:"MONTAGEM",empresa:"NOSSO CHOPE",local:"ANIL",regiao:"JPA",cliente:"ALEXANDRA VARGAS MENEZES",previo:"10:30",partir:"08H",evento:"13H",endereco:"RUA ROBERTO OSWALDO CRUZ, 04 - ANIL, RIO DE JANEIRO",itens:["1 chopeira elétrica 110V","2 extratoras","1 cilindro CO²","1 barril 50L"]},
-          {pedido:"14121",vendedor:"ROBERTO ENKEL",op:"MONTAGEM",empresa:"MISTURA",local:"BARRA DA TIJUCA",regiao:"BARRA",cliente:"PEDRO RESENDE",previo:"11:15",partir:"08H",evento:"10H",endereco:"AVENIDA RAYMUNDO MAGALHÃES JÚNIOR, 200 - BARRA DA TIJUCA, RIO DE JANEIRO",itens:["1 chopeira elétrica 110V","1 extratora","1 cilindro CO²","1 barril 30L"]},
-          {pedido:"30944",vendedor:"FABRIZIO RUIZ",op:"RECOLHA",empresa:"CHOPP IN",local:"RECREIO",regiao:"BARRA",cliente:"TATIANA VISTA TOASPERN",previo:"11:45",partir:"08H",evento:"—",endereco:"RUA JOSÉ MINDLIN, 100 - RECREIO, RIO DE JANEIRO",itens:["1 chopeira elétrica 110V","1 extratora","1 cilindro CO²"]},
-        ]},
-        {num:4,motorista:"FLÁVIO",ajudante:"ARTHUR",paradas:[
-          {pedido:"30716",vendedor:"FABRIZIO RUIZ",op:"MONTAGEM",empresa:"CHOPP IN",local:"BARRA",regiao:"BARRA",cliente:"LARISSA MORENO",previo:"09:15",partir:"08H",evento:"13H",endereco:"AVENIDA LUCIO COSTA, 4700 - BARRA DA TIJUCA, RIO DE JANEIRO",itens:["1 chopeira elétrica 110V","1 extratora","1 cilindro CO²","1 barril 30L"]},
-          {pedido:"14067",vendedor:"MARCUS VINICIUS",op:"MONTAGEM",empresa:"NOSSO CHOPE",local:"BARRA DA TIJUCA",regiao:"BARRA",cliente:"CRISTIANE LAMARTINE",previo:"09:45",partir:"08H",evento:"13H",endereco:"RUA CALHEIROS GOMES, 110 - BARRA DA TIJUCA, RIO DE JANEIRO",itens:["1 chopeira elétrica 110V","1 extratora","1 cilindro CO²","1 barril 50L"]},
-          {pedido:"14049",vendedor:"BERNARDO",op:"MONTAGEM",empresa:"NOSSO CHOPE",local:"BARRA DA TIJUCA",regiao:"BARRA",cliente:"MONIQUE RODRIGUES",previo:"10:45",partir:"08H",evento:"14H",endereco:"AVENIDA PREFEITO DULCÍDIO CARDOSO, 1100 - BARRA DA TIJUCA, RIO DE JANEIRO",itens:["1 chopeira a gelo 2 vias","2 extratoras","2 cilindros CO²","2 barris 50L"]},
-          {pedido:"14059",vendedor:"MARCUS VINICIUS",op:"RECOLHA",empresa:"MISTURA",local:"BARRA DA TIJUCA",regiao:"BARRA",cliente:"FERNANDA LEBEIS",previo:"11:30",partir:"08H",evento:"17H",endereco:"AVENIDA JORNALISTA RICARDO MARINHO, 450 - BARRA DA TIJUCA, RIO DE JANEIRO",itens:["1 chopeira a gelo 2 vias","2 extratoras","2 cilindros CO²"]},
-          {pedido:"13982",vendedor:"BERNARDO",op:"MONTAGEM",empresa:"NOSSO CHOPE",local:"BARRA DA TIJUCA",regiao:"BARRA",cliente:"ALEXANDRE TOFFANO",previo:"09:15",partir:"08H",evento:"14H",endereco:"AVENIDA JORNALISTA RICARDO MARINHO, 450 - BARRA DA TIJUCA, RIO DE JANEIRO",itens:["1 chopeira elétrica 110V","1 extratora","1 cilindro CO²","1 barril 30L"]},
-        ]},
-        {num:5,motorista:"RENAN",ajudante:"",paradas:[
-          {pedido:"14052",vendedor:"BERNARDO",op:"MONTAGEM",empresa:"MISTURA",local:"TIJUCA",regiao:"TIJUCA",cliente:"ANDRÉ RODRIGUES",previo:"09:00",partir:"08H",evento:"12H",endereco:"RUA GENERAL ESPÍRITO SANTO CARDOSO, 535 - TIJUCA, RIO DE JANEIRO",itens:["1 chopeira elétrica 110V","1 extratora","1 cilindro CO²","1 barril 30L"]},
-          {pedido:"30750",vendedor:"FABRIZIO RUIZ",op:"MONTAGEM",empresa:"CHOPP IN",local:"TIJUCA",regiao:"TIJUCA",cliente:"DIOGO DE OLIVEIRA COELHO",previo:"09:45",partir:"08H",evento:"15H",endereco:"RUA CONDE DE BONFIM, 850 - TIJUCA, RIO DE JANEIRO",itens:["1 chopeira elétrica 110V","1 extratora","1 cilindro CO²","1 barril 50L"]},
-          {pedido:"14032",vendedor:"MARCUS VINICIUS",op:"MONTAGEM",empresa:"NOSSO CHOPE",local:"MARACANÃ",regiao:"TIJUCA",cliente:"MICHELE GUERRA WISNESKY",previo:"10:30",partir:"08H",evento:"14H",endereco:"RUA IBITURUNA, 89 - MARACANÃ, RIO DE JANEIRO",itens:["1 chopeira a gelo 2 vias","2 extratoras","2 cilindros CO²","2 barris 50L"]},
-          {pedido:"—",vendedor:"",op:"RECARREGAR",empresa:"",local:"SEDE FARRA FLOW",regiao:"",cliente:"RECARREGAR NA SEDE",previo:"11:00",partir:"—",evento:"—",endereco:"",itens:[]},
-          {pedido:"30806",vendedor:"RAFAEL LOPES",op:"MONTAGEM",empresa:"FARRA",local:"VILA ISABEL",regiao:"TIJUCA",cliente:"PEDRO RENATO VENTURINI MOREIRA",previo:"11:45",partir:"08H",evento:"14H",endereco:"RUA BALTAZAR LISBOA, 2 - VILA ISABEL, RIO DE JANEIRO",itens:["1 chopeira a gelo 2 vias","2 extratoras","2 cilindros CO²","2 barris 50L"]},
-          {pedido:"30918",vendedor:"FABRIZIO RUIZ",op:"MONTAGEM",empresa:"CHOPP IN",local:"VILA ISABEL",regiao:"TIJUCA",cliente:"MARCELO MERENDA PEREIRA",previo:"12:30",partir:"08H",evento:"14H",endereco:"RUA TORRES HOMEM, 449 - VILA ISABEL, RIO DE JANEIRO",itens:["1 chopeira elétrica 110V","1 extratora","1 cilindro CO²","1 barril 30L"]},
-        ]},
-      ],
-      DOM:[],
-    },
-    // Fluxo por dia (lido da aba Controle_Equip):
-    //   SEDE (hoje)  = inicio - saidas + reap   -> disponível p/ encaixe no dia
-    //   D+1 (amanhã) = SEDE + ret               -> com quanto começo o dia seguinte
-    // Início = D+1 do dia anterior. Aqui só o sábado tem dados (igual às rotas).
-    equip_por_dia:{
-      SEG:[],TER:[],QUA:[],QUI:[],SEX:[],
-      SAB:[
-        {tipo:"Chopeira a Gelo 1 Via",     inicio:7,  saidas:0,  reap:0, ret:0},
-        {tipo:"Chopeira a Gelo 2 Vias",    inicio:17, saidas:5,  reap:1, ret:2},
-        {tipo:"Chopeira Elétrica 1V 110V", inicio:21, saidas:15, reap:1, ret:0},
-        {tipo:"Chopeira Elétrica 2V 110V", inicio:7,  saidas:1,  reap:0, ret:0},
-        {tipo:"Chopeira Elétrica 1V 220V", inicio:3,  saidas:1,  reap:0, ret:0},
-        {tipo:"Chopeira Elétrica 2V 220V", inicio:1,  saidas:0,  reap:0, ret:0},
-        {tipo:"Chopeira Elétrica 3V 220V", inicio:1,  saidas:0,  reap:0, ret:0},
-        {tipo:"Extratora",                 inicio:80, saidas:30, reap:2, ret:3},
-        {tipo:"Cilindro CO²",              inicio:53, saidas:25, reap:1, ret:2},
-        {tipo:"Regulador",                 inicio:49, saidas:25, reap:1, ret:2},
-      ],
-      DOM:[],
-    },
+  // ====== CONFIG: cole aqui os 3 links CSV do Google Sheets ======
+  const CONFIG = {
+    ROTAS:     "https://docs.google.com/spreadsheets/d/e/2PACX-1vSZo0ZtER_L9aJ8iGMSwobojYO_uL5GRvXILN93bY6disXQ63lE1c9qwCnwNTkNURix2yK-MNBKWxF_/pub?gid=0&single=true&output=csv",
+    EQUIP_DET: "https://docs.google.com/spreadsheets/d/e/2PACX-1vSZo0ZtER_L9aJ8iGMSwobojYO_uL5GRvXILN93bY6disXQ63lE1c9qwCnwNTkNURix2yK-MNBKWxF_/pub?gid=1591888103&single=true&output=csv",
+    EQUIP:     "https://docs.google.com/spreadsheets/d/e/2PACX-1vSZo0ZtER_L9aJ8iGMSwobojYO_uL5GRvXILN93bY6disXQ63lE1c9qwCnwNTkNURix2yK-MNBKWxF_/pub?gid=1502468656&single=true&output=csv"
   };
 
-  const DETALHES = {
-    "30835": {"chop": [{"n": "G01", "t": "Chopeira a gelo 1 via"}], "extr": [15], "cil": ["C 065"]},
-    "14134": {"chop": [{"n": "G18", "t": "Chopeira a gelo 2 vias"}], "extr": [39], "cil": ["FB 06"]},
-    "30935": {"chop": [{"n": "E25", "t": "Chopeira elétrica 1 via 110V"}], "extr": [29], "cil": ["BF 10"]},
-    "14105": {"chop": [{"n": "E12", "t": "Chopeira elétrica 1 via 110V"}], "extr": [24], "cil": ["C 042"]},
-    "30925": {"chop": [{"n": "G09", "t": "Chopeira a gelo 2 vias"}], "extr": [36], "cil": ["C 090"]},
-    "30811": {"chop": [{"n": "E05", "t": "Chopeira elétrica 1 via 110V"}], "extr": [11], "cil": ["FB 07"]},
-    "30896": {"chop": [{"n": "E10", "t": "Chopeira elétrica 1 via 110V"}], "extr": [16], "cil": ["BA 644"]},
-    "30882": {"chop": [{"n": "G16", "t": "Chopeira a gelo 2 vias"}], "extr": [17], "cil": ["C 055"]},
-    "30929": {"chop": [{"n": "E23", "t": "Chopeira elétrica 1 via 110V"}], "extr": [41], "cil": ["BA 645"]},
-    "14055": {"chop": [{"n": "E34", "t": "Chopeira elétrica 2 vias 110V"}], "extr": [19, 20], "cil": ["C 039"]},
-    "14111": {"chop": [{"n": "E14", "t": "Chopeira elétrica 1 via 110V"}], "extr": [25], "cil": ["C 011"]},
-    "14146": {"chop": [{"n": "E26", "t": "Chopeira elétrica 1 via 110V"}], "extr": [5], "cil": ["C 048"]},
-    "30914": {"chop": [], "extr": [18], "cil": []},
-    "14109": {"chop": [{"n": "G17", "t": "Chopeira a gelo 2 vias"}], "extr": [23], "cil": ["BF 11"]},
-    "14131": {"chop": [{"n": "E36", "t": "Chopeira elétrica 2 vias 110V"}], "extr": [37, 38], "cil": ["C 101"]},
-    "14121": {"chop": [{"n": "E21", "t": "Chopeira elétrica 1 via 110V"}], "extr": [32], "cil": ["C 077"]},
-    "30944": {"chop": [{"n": "E31", "t": "Chopeira elétrica 1 via 220V"}], "extr": [2], "cil": ["C 074"]},
-    "30716": {"chop": [{"n": "E03", "t": "Chopeira elétrica 1 via 110V"}], "extr": [7], "cil": ["C 073"]},
-    "14067": {"chop": [{"n": "E15", "t": "Chopeira elétrica 1 via 110V"}], "extr": [26], "cil": ["FB 013"]},
-    "14049": {"chop": [{"n": "E16", "t": "Chopeira elétrica 1 via 110V"}], "extr": [27], "cil": ["C 116"]},
-    "14059": {"chop": [{"n": "E09", "t": "Chopeira elétrica 1 via 110V"}], "extr": [6], "cil": ["BA 643"]},
-    "13982": {"chop": [{"n": "E09", "t": "Chopeira elétrica 1 via 110V"}], "extr": [6], "cil": ["BA 643"]},
-    "14052": {"chop": [{"n": "E20", "t": "Chopeira elétrica 1 via 110V"}], "extr": [31], "cil": ["BF 08"]},
-    "30750": {"chop": [{"n": "E04", "t": "Chopeira elétrica 1 via 110V"}], "extr": [8], "cil": ["C 082"]},
-    "14032": {"chop": [{"n": "E35", "t": "Chopeira elétrica 2 vias 110V"}], "extr": [21, 22], "cil": ["C 094"]},
-    "30806": {"chop": [{"n": "G10", "t": "Chopeira a gelo 2 vias"}], "extr": [13, 14], "cil": ["C 18026"]},
-    "30918": {"chop": [{"n": "E33", "t": "Chopeira elétrica 2 vias 110V"}], "extr": [9, 10], "cil": ["C 040"]},
-  };
+  let DADOS = null;
+  let DETALHES = {};
+  let ULTIMA_ATUALIZACAO = "";
+  let estadoCarga = "carregando";
+  let mensagemErro = "";
+
+  const DIAS_FULL={SEG:"Segunda",TER:"Terça",QUA:"Quarta",QUI:"Quinta",SEX:"Sexta",SAB:"Sábado",DOM:"Domingo"};
+  const MESES=["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
+
+  // ---- Leitor de CSV (respeita aspas/virgulas dentro de campos) ----
+  function parseCSV(text){
+    const rows=[]; let row=[],cur='',q=false;
+    for(let i=0;i<text.length;i++){
+      const ch=text[i];
+      if(q){ if(ch==='"'){ if(text[i+1]==='"'){cur+='"';i++;} else q=false; } else cur+=ch; }
+      else{
+        if(ch==='"') q=true;
+        else if(ch===',') { row.push(cur); cur=''; }
+        else if(ch==='\n'){ row.push(cur); rows.push(row); row=[]; cur=''; }
+        else if(ch==='\r'){}
+        else cur+=ch;
+      }
+    }
+    if(cur!==''||row.length){ row.push(cur); rows.push(row); }
+    return rows;
+  }
+  function toObjects(text){
+    const rows=parseCSV(text).filter(r=>r.length>1||(r.length===1&&r[0]!==''));
+    if(!rows.length) return [];
+    const head=rows[0].map(h=>h.trim());
+    return rows.slice(1).map(r=>{const o={};head.forEach((h,i)=>o[h]=(r[i]||'').trim());return o;});
+  }
+  function formatTipo(s){
+    if(!s) return '';
+    let t=s.trim().toLowerCase();
+    t=t.charAt(0).toUpperCase()+t.slice(1);
+    return t.replace(/110v/g,'110V').replace(/220v/g,'220V').replace(/co²/gi,'CO²');
+  }
+  function itensFromDet(d){
+    if(!d) return [];
+    const out=[],byT={};
+    d.chop.forEach(c=>{byT[c.t]=(byT[c.t]||0)+1;});
+    Object.keys(byT).forEach(t=>out.push(`${byT[t]} ${t}`));
+    if(d.extr.length) out.push(`${d.extr.length} ${d.extr.length>1?'extratoras':'extratora'}`);
+    if(d.cil.length) out.push(`${d.cil.length} ${d.cil.length>1?'cilindros CO²':'cilindro CO²'}`);
+    return out;
+  }
+  function normHora(s){
+    const m=/^(\d{1,2}):(\d{2})/.exec(String(s||'').trim());
+    return m?`${m[1].padStart(2,'0')}:${m[2]}`:String(s||'').trim();
+  }
+  function buildDADOS(rotasRows, detRows, equipRows){
+    const dias={SEG:[],TER:[],QUA:[],QUI:[],SEX:[],SAB:[],DOM:[]};
+    const rotaMap={};
+    rotasRows.forEach(r=>{
+      const key=r.Dia+'|'+r.RotaNum;
+      if(!rotaMap[key]){
+        const obj={num:r.RotaNum,motorista:r.Motorista,ajudante:r.Ajudante,link_maps:r.LinkMaps,paradas:[]};
+        rotaMap[key]=obj; (dias[r.Dia]=dias[r.Dia]||[]).push(obj);
+      }
+      rotaMap[key].paradas.push({pedido:r.Pedido,vendedor:r.Vendedor,op:r.Operacao,empresa:r.Empresa,
+        local:r.Local,regiao:r.Regiao,cliente:r.Cliente,previo:normHora(r.HrPrevio),partir:r.APartirDe,
+        evento:r.Evento,endereco:r.Endereco});
+    });
+    const DET={};
+    detRows.forEach(d=>{
+      if(!DET[d.Pedido]) DET[d.Pedido]={chop:[],extr:[],cil:[]};
+      if(d.Categoria==='CHOPEIRA') DET[d.Pedido].chop.push({n:d.Numero,t:formatTipo(d.Descricao)});
+      else if(d.Categoria==='EXTRATORA') DET[d.Pedido].extr.push(d.Numero);
+      else if(d.Categoria==='CILINDRO') DET[d.Pedido].cil.push(d.Numero);
+    });
+    Object.values(dias).forEach(rs=>rs.forEach(rt=>rt.paradas.forEach(p=>{p.itens=itensFromDet(DET[p.pedido]);})));
+    const equipDia={},diaData={};
+    equipRows.forEach(e=>{
+      (equipDia[e.Dia]=equipDia[e.Dia]||[]).push({tipo:e.Equipamento,sede:Number(e.SEDE)||0,d1:Number(e.D1)||0});
+      diaData[e.Dia]=e.Data;
+    });
+    return {dias,DETALHES:DET,equip_por_dia:equipDia,diaData};
+  }
+  function tituloDia(dia){
+    const dt=(DADOS&&DADOS.diaData)?DADOS.diaData[dia]:'';
+    if(!dt) return DIAS_FULL[dia]||dia;
+    const p=dt.split('/');
+    return `${DIAS_FULL[dia]||dia}, ${parseInt(p[0],10)} de ${MESES[parseInt(p[1],10)-1]||''}`;
+  }
+  function dataExtenso(dia){
+    const dt=(DADOS&&DADOS.diaData)?DADOS.diaData[dia]:'';
+    if(!dt) return '';
+    const p=dt.split('/');
+    return `${parseInt(p[0],10)} de ${MESES[parseInt(p[1],10)-1]||''}`;
+  }
+  async function carregarDados(){
+    estadoCarga="carregando"; render();
+    try{
+      const [r,d,e]=await Promise.all([
+        fetch(CONFIG.ROTAS).then(x=>{if(!x.ok)throw new Error("ROTAS "+x.status);return x.text();}),
+        fetch(CONFIG.EQUIP_DET).then(x=>{if(!x.ok)throw new Error("EQUIP_DET "+x.status);return x.text();}),
+        fetch(CONFIG.EQUIP).then(x=>{if(!x.ok)throw new Error("EQUIP "+x.status);return x.text();})
+      ]);
+      const built=buildDADOS(toObjects(r),toObjects(d),toObjects(e));
+      DADOS=built; DETALHES=built.DETALHES;
+      ULTIMA_ATUALIZACAO=new Date().toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+      estadoCarga="ok";
+    }catch(err){ estadoCarga="erro"; mensagemErro=String(err.message||err); }
+    render();
+  }
   const DIAS_LABEL={SEG:"Seg",TER:"Ter",QUA:"Qua",QUI:"Qui",SEX:"Sex",SAB:"Sáb",DOM:"Dom"};
   const SEDE="RUA MAXWELL, 418 - ANDARAÍ, RIO DE JANEIRO";  // origem das rotas
   const OPS_VALIDAS=["MONTAGEM","RECOLHA","ENTREGA","RECARREGAR"];
@@ -302,6 +323,15 @@
   }
 
   function render(){
+    const app=document.getElementById("app-root");
+    if(estadoCarga==="carregando"||!DADOS){
+      app.innerHTML=`<div class="loadscr"><div class="ld-dot"></div>Carregando o painel…</div>`;
+      return;
+    }
+    if(estadoCarga==="erro"){
+      app.innerHTML=`<div class="loadscr"><div class="ld-x">!</div>Não consegui carregar os dados.<br><small>${mensagemErro}</small><br><button class="ld-btn" onclick="carregarDados()">Tentar de novo</button></div>`;
+      return;
+    }
     const rotas=DADOS.dias[estado.dia]||[];
     const totalParadas=rotas.reduce((s,r)=>s+r.paradas.length,0);
     const dayBtns=Object.keys(DIAS_LABEL).map(d=>{
@@ -330,7 +360,7 @@
     document.getElementById("app-root").innerHTML=`
       <div class="topbar">
         <div class="brand"><h1>Rotas<span class="dot">.</span></h1><span class="sub">Farra Flow · Operação</span></div>
-        <div class="updated"><span class="pulse"></span> Atualizado em ${DADOS.atualizado}</div>
+        <div class="updated"><span class="pulse"></span> Atualizado em ${ULTIMA_ATUALIZACAO}</div>
         <div class="days">${dayBtns}</div>
         <div class="views">
           <div class="view-tab ${estado.view==='rotas'?'active':''}" onclick="setView('rotas')">Rotas</div>
@@ -346,7 +376,7 @@
     if(rotas.length===0){
       return `<div class="empty"><div class="big">∅</div>Sem rotas para ${DIAS_LABEL[estado.dia]}.</div>`;
     }
-    return `<div class="day-meta"><span class="title">${DADOS.dia_titulo}</span><span class="count">${rotas.length} rotas · ${totalParadas} paradas</span></div>`+
+    return `<div class="day-meta"><span class="title">${tituloDia(estado.dia)}</span><span class="count">${rotas.length} rotas · ${totalParadas} paradas</span></div>`+
       rotas.map((r,i)=>{
         const crew=r.ajudante?`${r.motorista} <span style="color:var(--ink-soft);font-weight:500">/ ${r.ajudante}</span>`:r.motorista;
         const stops=r.paradas.map((p,si)=>{
@@ -417,24 +447,18 @@
 
   function renderEquip(){
     const lista=DADOS.equip_por_dia[estado.dia]||[];
-    if(lista.length===0) return `<div class="empty"><div class="big">∅</div>Sem movimentação de equipamentos em ${DIAS_LABEL[estado.dia]}.</div>`;
-    return `<p class="equip-intro"><b>Disponível p/ encaixe (SEDE)</b> = quanto sobra na sede hoje para um delivery de última hora. <b>D+1</b> = com quanto começo amanhã.<br>SEDE = Início − Saídas + Reap. · D+1 = SEDE + Retornos.</p>`+
+    if(lista.length===0) return `<div class="empty"><div class="big">∅</div>Sem dados de equipamentos em ${DIAS_LABEL[estado.dia]}.</div>`;
+    return `<p class="equip-intro"><b>SEDE</b> = disponível na sede para encaixe no dia. <b>D+1</b> = com quanto começo o dia seguinte.</p>`+
       lista.map(e=>{
-        const sede=e.inicio-e.saidas+e.reap;
-        const d1=sede+e.ret;
-        const low=sede<=Math.max(2,Math.round(e.inicio*0.1));
-        const fluxo=[`Início ${e.inicio}`,`Saídas −${e.saidas}`];
-        if(e.reap)fluxo.push(`Reap. +${e.reap}`);
-        if(e.ret)fluxo.push(`Retornos +${e.ret}`);
+        const low=e.sede<=2;
         return `<div class="equip-card">
           <div class="equip-row">
-            <span class="tipo">${e.tipo}</span>
+            <span class="tipo">${formatTipo(e.tipo)}</span>
             <span class="equip-big">
-              <span class="b disp ${low?'low':''}"><span class="n">${sede}</span><span class="l">SEDE hoje</span></span>
-              <span class="b d1"><span class="n">${d1}</span><span class="l">D+1 (amanhã)</span></span>
+              <span class="b disp ${low?'low':''}"><span class="n">${e.sede}</span><span class="l">SEDE hoje</span></span>
+              <span class="b d1"><span class="n">${e.d1}</span><span class="l">D+1 (amanhã)</span></span>
             </span>
           </div>
-          <div class="equip-sub">${fluxo.join('  ·  ')}  →  <b>SEDE ${sede}</b></div>
         </div>`;
       }).join("");
   }
@@ -486,7 +510,7 @@
     const equipe=p.motorista?`${p.motorista}${p.ajudante?` e ${p.ajudante}`:''}`:'';
     const itens=(p.itens||[]).map(i=>'• '+i).join('\n');
     const itensLbl=isRec?"Equipamentos a recolher":"Itens do pedido";
-    const diaData=(DADOS.dia_titulo||'').includes(',')?DADOS.dia_titulo.split(',').slice(1).join(',').trim():(DADOS.dia_titulo||'');
+    const diaData=dataExtenso(estado.dia);
     const msg=`Olá! Confirmada ${acao} para o dia ${diaData} 🍻\n\n*${p.cliente}*\n\n📍 ${p.endereco}\n\n🕐 ${labelJ}: *${j||'a combinar'}*\n\n${equipe?`🚚 Equipe responsável: ${equipe}\n\n`:''}*${itensLbl}:*\n${itens}\n\nQualquer dúvida, estou à disposição!`;
     window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
   }
@@ -508,7 +532,7 @@
   function toggleDet(id){document.getElementById(id).classList.toggle("open");
     const b=document.querySelector(`[onclick="toggleDet('${id}')"]`); if(b)b.classList.toggle("open");}
   function toggle(i){document.getElementById("rota-"+i).classList.toggle("collapsed");}
-  render();
+  carregarDados();
 </script>
 </body>
 </html>
