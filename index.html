@@ -113,17 +113,19 @@
   .det-btn .cv{display:inline-block;transition:transform .2s;font-size:10px;}
   .det-btn.open{border-color:var(--amber);color:var(--amber-deep);}
   .det-btn.open .cv{transform:rotate(180deg);}
-  .det-panel{grid-column:1 / -1;display:none;margin-top:9px;padding:12px 13px;background:var(--paper-2);border-radius:11px;border:1px solid var(--line);}
+  .det-panel{grid-column:1 / -1;display:none;margin-top:9px;padding:11px 12px;background:var(--paper-2);border-radius:11px;border:1px solid var(--line);}
   .det-panel.open{display:block;animation:slideIn .18s ease;}
+  .det-cols{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;align-items:start;}
+  .det-col>.det-grupo:last-child{margin-bottom:0;}
   @keyframes slideIn{from{opacity:0;transform:translateY(-4px);}to{opacity:1;transform:translateY(0);}}
   .det-head{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:var(--amber-deep);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:9px;padding-bottom:7px;border-bottom:1px solid var(--line);}
-  .det-grupo{margin-bottom:9px;}
+  .det-grupo{margin-bottom:8px;}
   .det-grupo:last-child{margin-bottom:0;}
-  .det-lbl{display:block;font-size:9.5px;text-transform:uppercase;letter-spacing:0.6px;font-weight:700;color:var(--ink-soft);margin-bottom:5px;}
-  .det-nums{display:flex;flex-wrap:wrap;gap:6px;}
-  .det-num{background:var(--card);border:1px solid var(--line-strong);border-radius:8px;padding:5px 9px;display:flex;flex-direction:column;line-height:1.3;}
-  .det-num b{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--ink);}
-  .det-meta{font-size:9.5px;color:var(--ink-soft);}
+  .det-lbl{display:block;font-size:9px;text-transform:uppercase;letter-spacing:0.6px;font-weight:700;color:var(--ink-soft);margin-bottom:4px;}
+  .det-nums{display:flex;flex-wrap:wrap;gap:5px;}
+  .det-num{background:var(--card);border:1px solid var(--line-strong);border-radius:7px;padding:4px 8px;display:flex;flex-direction:column;line-height:1.25;}
+  .det-num b{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink);}
+  .det-meta{font-size:9px;color:var(--ink-soft);}
   .rota-foot a{flex:1;text-align:center;text-decoration:none;font-size:13px;font-weight:700;padding:9px;border-radius:9px;background:var(--ink);color:var(--paper);display:flex;align-items:center;justify-content:center;gap:7px;}
 
   .q-hint{font-size:11.5px;color:var(--ink-soft);margin:0 4px 12px;}
@@ -562,10 +564,10 @@
     const chop=(d.chop||[]).map(c=>`<span class="det-num"><b>${c.n}</b><span class="det-meta">${c.t}</span></span>`);
     const extr=(d.extr||[]).map(e=>`<span class="det-num"><b>${e}</b></span>`);
     const cil=(d.cil||[]).map(c=>`<span class="det-num"><b>${c.n}</b>${c.cap?`<span class="det-meta">${c.cap} L</span>`:''}</span>`);
-    return `${grupo('Barris',barris)}
-      ${grupo('Chopeira',chop)}
-      ${grupo('Extratora',extr)}
-      ${grupo('Cilindro CO²',cil)}`;
+    return `<div class="det-cols">
+      <div class="det-col">${grupo('Chopeira',chop)}${grupo('Barris',barris)}</div>
+      <div class="det-col">${grupo('Extratora',extr)}${grupo('Cilindro CO²',cil)}</div>
+    </div>`;
   }
   function toggleDet(id){document.getElementById(id).classList.toggle("open");
     const b=document.querySelector(`[onclick="toggleDet('${id}')"]`); if(b)b.classList.toggle("open");}
