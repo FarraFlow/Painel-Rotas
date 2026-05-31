@@ -398,7 +398,13 @@
   const SEDE="RUA MAXWELL, 418 - ANDARAÍ, RIO DE JANEIRO";  // origem das rotas
   const OPS_VALIDAS=["MONTAGEM","RECOLHA","ENTREGA","RECARREGAR"];
   const DOW=["DOM","SEG","TER","QUA","QUI","SEX","SAB"];
-  let estado={dia:DOW[new Date().getDay()],view:"rotas",rotasView:"detalhada",vendedor:""};
+  const ESTADO_KEY="farraflow_estado";
+  function salvarEstado(){ try{ localStorage.setItem(ESTADO_KEY, JSON.stringify(estado)); }catch(_){} }
+  function carregarEstadoSalvo(){
+    try{ const s=localStorage.getItem(ESTADO_KEY); if(s){ const e=JSON.parse(s); if(e&&e.dia) return e; } }catch(_){}
+    return null;
+  }
+  let estado = carregarEstadoSalvo() || {dia:DOW[new Date().getDay()],view:"rotas",rotasView:"detalhada",vendedor:""};
 
   function opClass(op){return OPS_VALIDAS.includes(op)?op:"OUTRO";}
   function mapsLink(end){return "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(end);}
@@ -617,10 +623,10 @@
     window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
   }
 
-  function setDia(d){estado.dia=d;render();}
-  function setView(v){estado.view=v;render();}
-  function setRotasView(v){estado.rotasView=v;render();}
-  function setVendedor(v){estado.vendedor=v;render();}
+  function setDia(d){estado.dia=d;salvarEstado();render();}
+  function setView(v){estado.view=v;salvarEstado();render();}
+  function setRotasView(v){estado.rotasView=v;salvarEstado();render();}
+  function setVendedor(v){estado.vendedor=v;salvarEstado();render();}
   function temEquip(p){
     const op=(p.op||'').toUpperCase().trim();
     if(op==='RECARREGAR'||op==='CARREGAR') return false;  // recarga na base nao detalha
