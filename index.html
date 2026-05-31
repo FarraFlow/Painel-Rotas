@@ -140,6 +140,11 @@
   .q-ev{color:var(--amber-deep);font-weight:600;}
   .q-rota td{background:var(--paper-2);font-weight:700;font-size:11px;letter-spacing:0.3px;color:var(--ink);border-top:2px solid var(--line-strong);font-family:'IBM Plex Mono',monospace;}
   .q-table .op{font-size:10px;padding:2px 7px;}
+  .q-st{position:sticky;left:0;z-index:2;background:var(--card);text-align:center;padding:4px 6px!important;box-shadow:1px 0 0 var(--line);}
+  .q-head td:first-child{position:sticky;left:0;z-index:3;background:var(--ink);box-shadow:1px 0 0 var(--ink);}
+  .q-st-off{color:var(--line-strong);font-family:'IBM Plex Mono',monospace;}
+  .st-btn{border:none;background:transparent;font-size:16px;line-height:1;cursor:pointer;padding:3px 5px;border-radius:6px;}
+  .st-btn:active{background:var(--paper-2);}
   .empty{text-align:center;padding:70px 20px;color:var(--ink-soft);}
   .empty .big{font-family:'Bricolage Grotesque',sans-serif;font-size:40px;color:var(--line-strong);margin-bottom:8px;}
 
@@ -201,8 +206,12 @@
     EQUIP:     "https://docs.google.com/spreadsheets/d/e/2PACX-1vSZo0ZtER_L9aJ8iGMSwobojYO_uL5GRvXILN93bY6disXQ63lE1c9qwCnwNTkNURix2yK-MNBKWxF_/pub?gid=1502468656&single=true&output=csv"
   };
 
+  // URL do Web App (Apps Script) — mesma usada pela macro. Para ler/gravar status.
+  const APPS_URL = "https://script.google.com/macros/s/AKfycbym_l1H2FhZbPnbNx_KN3dbAbEO4p7-vLe_fzGWoH4o2HNT2JmFanFXKy7V1ci1G02N/exec";
+
   let DADOS = null;
   let DETALHES = {};
+  let STATUS_MAP = {};   // chave "pedido|OPERACAO" -> "ok" | "nao"
   let ULTIMA_ATUALIZACAO = "";
   let estadoCarga = "carregando";
   let mensagemErro = "";
@@ -331,9 +340,49 @@
       const built=buildDADOS(rObjs,toObjects(d),toObjects(e));
       DADOS=built; DETALHES=built.DETALHES;
       ULTIMA_ATUALIZACAO=(rObjs[0]&&rObjs[0].PublicadoEm)?rObjs[0].PublicadoEm:'—';
+      await carregarStatus();
       estadoCarga="ok";
     }catch(err){ estadoCarga="erro"; mensagemErro=String(err.message||err); }
     render();
+  }
+
+  // Busca todos os status do Apps Script (tolerante: se falhar, painel segue sem checks).
+  async function carregarStatus(){
+    try{
+      const resp=await fetch(APPS_URL).then(x=>x.json());
+      STATUS_MAP={};
+      (resp.status||[]).forEach(s=>{
+        if(s && s.pedido && s.status) STATUS_MAP[s.pedido+'|'+String(s.operacao||'').toUpperCase()]=s.status;
+      });
+    }catch(_){ /* mantém o que tiver */ }
+  }
+
+  // Só faz sentido marcar status quando há pedido real E operação.
+  function statusAtivo(p){ return realPedido(p.pedido) && String(p.op||'').trim()!==''; }
+  function statusKey(p){ return p.pedido+'|'+String(p.op||'').toUpperCase().trim(); }
+
+  // Alterna ⬜ -> ✅ -> ❌ -> ⬜, salva no Apps Script (otimista: reverte se falhar).
+  async function toggleStatus(pedido, operacao){
+    const key=pedido+'|'+operacao;
+    const atual=STATUS_MAP[key]||'';
+    const prox = atual===''?'ok':(atual==='ok'?'nao':'');
+    if(prox==='') delete STATUS_MAP[key]; else STATUS_MAP[key]=prox;
+    render();
+    try{
+      const r=await fetch(APPS_URL,{method:'POST',body:JSON.stringify({acao:'salvar_status',pedido:pedido,operacao:operacao,status:prox})}).then(x=>x.json());
+      if(!r||!r.ok) throw new Error((r&&r.mensagem)||'falhou');
+    }catch(e){
+      if(atual==='') delete STATUS_MAP[key]; else STATUS_MAP[key]=atual;
+      render();
+      alert('Não consegui salvar o status. Verifique a internet e tente de novo.');
+    }
+  }
+
+  function statusCell(p){
+    if(!statusAtivo(p)) return `<td class="q-st q-st-off">·</td>`;
+    const st=STATUS_MAP[statusKey(p)]||'';
+    const icon = st==='ok'?'✅':(st==='nao'?'❌':'⬜');
+    return `<td class="q-st"><button class="st-btn" onclick="toggleStatus('${p.pedido}','${String(p.op||'').toUpperCase().trim()}')">${icon}</button></td>`;
   }
   const DIAS_LABEL={SEG:"Seg",TER:"Ter",QUA:"Qua",QUI:"Qui",SEX:"Sex",SAB:"Sáb",DOM:"Dom"};
   const SEDE="RUA MAXWELL, 418 - ANDARAÍ, RIO DE JANEIRO";  // origem das rotas
@@ -447,7 +496,7 @@
 
   function renderQuadro(rotas){
     if(rotas.length===0) return `<div class="empty"><div class="big">\u2205</div>Sem rotas para ${DIAS_LABEL[estado.dia]}.</div>`;
-    const cols=['Pedido','Vendedor','Opera\u00e7\u00e3o','Empresa','Local','Regi\u00e3o','Cliente','Hr. Pr\u00e9vio','A partir','Evento'];
+    const cols=['\u2713','Pedido','Vendedor','Opera\u00e7\u00e3o','Empresa','Local','Regi\u00e3o','Cliente','Hr. Pr\u00e9vio','A partir','Evento'];
     let rows='';
     rotas.forEach(r=>{
       const crew=r.ajudante?`${r.motorista} / ${r.ajudante}`:r.motorista;
@@ -455,6 +504,7 @@
       rows+=`<tr class="q-head">${cols.map(c=>`<td>${c}</td>`).join('')}</tr>`;
       r.paradas.forEach(p=>{
         rows+=`<tr>
+          ${statusCell(p)}
           <td class="q-mono">${p.pedido&&p.pedido!=='\u2014'?p.pedido:'\u2014'}</td>
           <td>${p.vendedor||'\u2014'}</td>
           <td><span class="op ${opClass(p.op)}">${p.op}</span></td>
