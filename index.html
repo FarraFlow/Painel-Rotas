@@ -327,9 +327,10 @@
         fetch(CONFIG.EQUIP_DET).then(x=>{if(!x.ok)throw new Error("EQUIP_DET "+x.status);return x.text();}),
         fetch(CONFIG.EQUIP).then(x=>{if(!x.ok)throw new Error("EQUIP "+x.status);return x.text();})
       ]);
-      const built=buildDADOS(toObjects(r),toObjects(d),toObjects(e));
+      const rObjs=toObjects(r);
+      const built=buildDADOS(rObjs,toObjects(d),toObjects(e));
       DADOS=built; DETALHES=built.DETALHES;
-      ULTIMA_ATUALIZACAO=new Date().toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+      ULTIMA_ATUALIZACAO=(rObjs[0]&&rObjs[0].PublicadoEm)?rObjs[0].PublicadoEm:'—';
       estadoCarga="ok";
     }catch(err){ estadoCarga="erro"; mensagemErro=String(err.message||err); }
     render();
