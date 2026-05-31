@@ -239,6 +239,7 @@
     t=t.charAt(0).toUpperCase()+t.slice(1);
     return t.replace(/110v/g,'110V').replace(/220v/g,'220V').replace(/co²/gi,'CO²');
   }
+  function realPedido(ped){ const s=String(ped||'').trim(); return s!=='' && s!=='0'; }
   function barrisItens(p){
     const out=[];
     (p.barris||[]).forEach(b=>{ if(b.q>0) out.push(`${b.q} ${b.q>1?'barris':'barril'} de ${b.tam}`); });
@@ -297,7 +298,7 @@
       else if(d.Categoria==='CILINDRO') DET[d.Pedido].cil.push({n:d.Numero,cap:d.Descricao});
     });
     Object.values(dias).forEach(rs=>rs.forEach(rt=>rt.paradas.forEach(p=>{
-      p.itens=barrisItens(p).concat(itensFromDet(DET[p.pedido]));
+      p.itens=barrisItens(p).concat(realPedido(p.pedido)?itensFromDet(DET[p.pedido]):[]);
     })));
     const equipDia={},diaData={};
     equipRows.forEach(e=>{
@@ -417,7 +418,7 @@
               ${p.empresa?`<span class="empresa">${p.empresa}</span>`:''}
             </div>
             <div class="cliente">${p.cliente}</div>
-            ${p.vendedor?`<div class="stop-line"><span class="vend-lbl">Vendedor</span>${p.vendedor}</div>`:''}
+            ${temVendedor(p.vendedor)?`<div class="stop-line"><span class="vend-lbl">Vendedor</span>${p.vendedor}</div>`:''}
             <div class="horarios">
               <div class="h"><span class="lbl">Hr. Prévio</span><span class="val">${p.previo||'—'}</span></div>
               <div class="h"><span class="lbl">A partir de</span><span class="val">${p.partir||'—'}</span></div>
@@ -495,12 +496,15 @@
       }).join("");
   }
 
+  function temVendedor(v){
+    const s=String(v||'').trim();
+    return s!=='' && s!=='0';
+  }
   function renderVendedor(rotas){
     const paradas=[];
     rotas.forEach(r=>r.paradas.forEach(p=>{
-      const op=(p.op||'').toUpperCase().trim();
-      if(op==='RECARREGAR'||op==='CARREGAR') return;   // operacao de base, sem cliente
-      if(p.vendedor) paradas.push({...p,motorista:r.motorista,ajudante:r.ajudante});
+      if(!temVendedor(p.vendedor)) return;   // sem vendedor real -> fora do Vendedor
+      paradas.push({...p,motorista:r.motorista,ajudante:r.ajudante});
     }));
     const vendedores=[...new Set(paradas.map(p=>p.vendedor))].sort();
     if(!estado.vendedor||!vendedores.includes(estado.vendedor)) estado.vendedor=vendedores[0]||"";
@@ -558,13 +562,13 @@
   function temEquip(p){
     const op=(p.op||'').toUpperCase().trim();
     if(op==='RECARREGAR'||op==='CARREGAR') return false;  // recarga na base nao detalha
-    const d=DETALHES[p.pedido];
+    const d=realPedido(p.pedido)?DETALHES[p.pedido]:null;
     const temDet=d&&((d.chop&&d.chop.length)||(d.extr&&d.extr.length)||(d.cil&&d.cil.length));
     const temBarris=(p.barris||[]).some(b=>b.q>0);
     return !!(temDet||temBarris);
   }
   function detPanelHtml(p){
-    const d=DETALHES[p.pedido]||{chop:[],extr:[],cil:[]};
+    const d=(realPedido(p.pedido)?DETALHES[p.pedido]:null)||{chop:[],extr:[],cil:[]};
     const grupo=(label,arr)=>arr.length?`<div class="det-grupo"><span class="det-lbl">${label}</span><div class="det-nums">${arr.join('')}</div></div>`:'';
     const barris=(p.barris||[]).filter(b=>b.q>0).map(b=>`<span class="det-num"><b>${b.q}×</b><span class="det-meta">${b.tam}</span></span>`);
     const chop=(d.chop||[]).map(c=>`<span class="det-num"><b>${c.n}</b><span class="det-meta">${c.t}</span></span>`);
