@@ -497,7 +497,11 @@
 
   function renderVendedor(rotas){
     const paradas=[];
-    rotas.forEach(r=>r.paradas.forEach(p=>{if(p.vendedor)paradas.push({...p,motorista:r.motorista,ajudante:r.ajudante});}));
+    rotas.forEach(r=>r.paradas.forEach(p=>{
+      const op=(p.op||'').toUpperCase().trim();
+      if(op==='RECARREGAR'||op==='CARREGAR') return;   // operacao de base, sem cliente
+      if(p.vendedor) paradas.push({...p,motorista:r.motorista,ajudante:r.ajudante});
+    }));
     const vendedores=[...new Set(paradas.map(p=>p.vendedor))].sort();
     if(!estado.vendedor||!vendedores.includes(estado.vendedor)) estado.vendedor=vendedores[0]||"";
     if(vendedores.length===0) return `<div class="empty"><div class="big">∅</div>Sem pedidos neste dia.</div>`;
@@ -552,6 +556,8 @@
   function setRotasView(v){estado.rotasView=v;render();}
   function setVendedor(v){estado.vendedor=v;render();}
   function temEquip(p){
+    const op=(p.op||'').toUpperCase().trim();
+    if(op==='RECARREGAR'||op==='CARREGAR') return false;  // recarga na base nao detalha
     const d=DETALHES[p.pedido];
     const temDet=d&&((d.chop&&d.chop.length)||(d.extr&&d.extr.length)||(d.cil&&d.cil.length));
     const temBarris=(p.barris||[]).some(b=>b.q>0);
