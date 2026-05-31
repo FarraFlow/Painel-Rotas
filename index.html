@@ -385,7 +385,7 @@
 
     document.getElementById("app-root").innerHTML=`
       <div class="topbar">
-        <div class="brand"><h1>Rotas<span class="dot">.</span></h1><span class="sub">Farra Flow · Operação</span></div>
+        <div class="brand"><h1>Painel Logística<span class="dot">.</span></h1><span class="sub">Farra Flow · Operação</span></div>
         <div class="updated"><span class="pulse"></span> Atualizado em ${ULTIMA_ATUALIZACAO}</div>
         <div class="days">${dayBtns}</div>
         <div class="views">
@@ -394,8 +394,7 @@
           <div class="view-tab ${estado.view==='vend'?'active':''}" onclick="setView('vend')">Vendedor</div>
         </div>
       </div>
-      <div class="content">${body}</div>
-      <div class="footnote">Protótipo · dados de amostra. Pagamentos não aparecem nesta visão.</div>`;
+      <div class="content">${body}</div>`;
   }
 
   function renderRotas(rotas,totalParadas){
@@ -407,7 +406,7 @@
         const crew=r.ajudante?`${r.motorista} <span style="color:var(--ink-soft);font-weight:500">/ ${r.ajudante}</span>`:r.motorista;
         const stops=r.paradas.map((p,si)=>{
           const detId=`det-${i}-${si}`;
-          const temDet=p.pedido&&DETALHES[p.pedido];
+          const temDet=temEquip(p);
           return `<div class="stop">
             <div class="stop-top">
               ${p.pedido&&p.pedido!=="—"?`<span class="pedido">#${p.pedido}</span>`:''}
@@ -527,7 +526,7 @@
     }).join("");
 
     window.__vendList=lista;
-    return `<p class="vend-intro">Janela = 1h antes a 1h depois do Hr. Prévio (o prévio em si não aparece). <span class="sketch-tag">esboço</span><br>Itens são ilustrativos até ligarmos às colunas reais da planilha.</p>
+    return `<p class="vend-intro">Janela = 1h antes a 1h depois do Hr. Prévio (o prévio em si não aparece).</p>
       <select class="vend-select" onchange="setVendedor(this.value)">${opts}</select>
       ${cards||'<div class="empty">Sem pedidos para este vendedor.</div>'}`;
   }
@@ -550,13 +549,21 @@
   function setView(v){estado.view=v;render();}
   function setRotasView(v){estado.rotasView=v;render();}
   function setVendedor(v){estado.vendedor=v;render();}
+  function temEquip(p){
+    const d=DETALHES[p.pedido];
+    const temDet=d&&((d.chop&&d.chop.length)||(d.extr&&d.extr.length)||(d.cil&&d.cil.length));
+    const temBarris=(p.barris||[]).some(b=>b.q>0);
+    return !!(temDet||temBarris);
+  }
   function detPanelHtml(p){
-    const d=DETALHES[p.pedido]; if(!d) return '';
+    const d=DETALHES[p.pedido]||{chop:[],extr:[],cil:[]};
     const grupo=(label,arr)=>arr.length?`<div class="det-grupo"><span class="det-lbl">${label}</span><div class="det-nums">${arr.join('')}</div></div>`:'';
+    const barris=(p.barris||[]).filter(b=>b.q>0).map(b=>`<span class="det-num"><b>${b.q}×</b><span class="det-meta">${b.tam}</span></span>`);
     const chop=(d.chop||[]).map(c=>`<span class="det-num"><b>${c.n}</b><span class="det-meta">${c.t}</span></span>`);
     const extr=(d.extr||[]).map(e=>`<span class="det-num"><b>${e}</b></span>`);
     const cil=(d.cil||[]).map(c=>`<span class="det-num"><b>${c.n}</b>${c.cap?`<span class="det-meta">${c.cap} L</span>`:''}</span>`);
-    return `${grupo('Chopeira',chop)}
+    return `${grupo('Barris',barris)}
+      ${grupo('Chopeira',chop)}
       ${grupo('Extratora',extr)}
       ${grupo('Cilindro CO²',cil)}`;
   }
