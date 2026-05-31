@@ -237,6 +237,11 @@
     t=t.charAt(0).toUpperCase()+t.slice(1);
     return t.replace(/110v/g,'110V').replace(/220v/g,'220V').replace(/co²/gi,'CO²');
   }
+  function barrisItens(p){
+    const out=[];
+    (p.barris||[]).forEach(b=>{ if(b.q>0) out.push(`${b.q} ${b.q>1?'barris':'barril'} de ${b.tam}`); });
+    return out;
+  }
   function itensFromDet(d){
     if(!d) return [];
     const out=[],byT={};
@@ -279,16 +284,19 @@
       }
       rotaMap[key].paradas.push({pedido:r.Pedido,vendedor:r.Vendedor,op:r.Operacao,empresa:r.Empresa,
         local:r.Local,regiao:r.Regiao,cliente:r.Cliente,previo:normHora(r.HrPrevio),partir:r.APartirDe,
-        evento:r.Evento,endereco:r.Endereco});
+        evento:r.Evento,endereco:r.Endereco,
+        barris:[{tam:'10L',q:Number(r.B10)||0},{tam:'20L',q:Number(r.B20)||0},{tam:'30L',q:Number(r.B30)||0},{tam:'50L',q:Number(r.B50)||0}]});
     });
     const DET={};
     detRows.forEach(d=>{
       if(!DET[d.Pedido]) DET[d.Pedido]={chop:[],extr:[],cil:[]};
       if(d.Categoria==='CHOPEIRA') DET[d.Pedido].chop.push({n:d.Numero,t:formatTipo(d.Descricao)});
       else if(d.Categoria==='EXTRATORA') DET[d.Pedido].extr.push(d.Numero);
-      else if(d.Categoria==='CILINDRO') DET[d.Pedido].cil.push(d.Numero);
+      else if(d.Categoria==='CILINDRO') DET[d.Pedido].cil.push({n:d.Numero,cap:d.Descricao});
     });
-    Object.values(dias).forEach(rs=>rs.forEach(rt=>rt.paradas.forEach(p=>{p.itens=itensFromDet(DET[p.pedido]);})));
+    Object.values(dias).forEach(rs=>rs.forEach(rt=>rt.paradas.forEach(p=>{
+      p.itens=barrisItens(p).concat(itensFromDet(DET[p.pedido]));
+    })));
     const equipDia={},diaData={};
     equipRows.forEach(e=>{
       (equipDia[e.Dia]=equipDia[e.Dia]||[]).push({tipo:e.Equipamento,sede:Number(e.SEDE)||0,d1:Number(e.D1)||0,reap:Number(e.REAP)||0,ret:Number(e.RET)||0});
@@ -547,7 +555,7 @@
     const grupo=(label,arr)=>arr.length?`<div class="det-grupo"><span class="det-lbl">${label}</span><div class="det-nums">${arr.join('')}</div></div>`:'';
     const chop=(d.chop||[]).map(c=>`<span class="det-num"><b>${c.n}</b><span class="det-meta">${c.t}</span></span>`);
     const extr=(d.extr||[]).map(e=>`<span class="det-num"><b>${e}</b></span>`);
-    const cil=(d.cil||[]).map(c=>`<span class="det-num"><b>${c}</b></span>`);
+    const cil=(d.cil||[]).map(c=>`<span class="det-num"><b>${c.n}</b>${c.cap?`<span class="det-meta">${c.cap} L</span>`:''}</span>`);
     return `${grupo('Chopeira',chop)}
       ${grupo('Extratora',extr)}
       ${grupo('Cilindro CO²',cil)}`;
