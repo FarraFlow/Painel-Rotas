@@ -247,13 +247,31 @@
     return out;
   }
   function normHora(s){
-    const m=/^(\d{1,2}):(\d{2})/.exec(String(s||'').trim());
-    return m?`${m[1].padStart(2,'0')}:${m[2]}`:String(s||'').trim();
+    s=String(s||'').trim();
+    if(!s) return '';
+    const m=/^(\d{1,2}):(\d{2})/.exec(s);
+    if(m) return `${m[1].padStart(2,'0')}:${m[2]}`;
+    // Caso venha como fração de dia do Excel (ex.: "0,375" = 09:00)
+    const f=parseFloat(s.replace(',','.'));
+    if(!isNaN(f)&&f>0&&f<1){
+      const mins=Math.round(f*24*60);
+      return `${String(Math.floor(mins/60)).padStart(2,'0')}:${String(mins%60).padStart(2,'0')}`;
+    }
+    return s;
+  }
+  // Uma parada so vale se tem pedido real (>0), ou endereco, ou e recarga na base.
+  function paradaValida(r){
+    const ped=parseInt(r.Pedido,10);
+    if(!isNaN(ped)&&ped>0) return true;
+    if((r.Endereco||'').trim()!=='') return true;
+    const op=(r.Operacao||'').toUpperCase().trim();
+    return op==='RECARREGAR'||op==='CARREGAR';
   }
   function buildDADOS(rotasRows, detRows, equipRows){
     const dias={SEG:[],TER:[],QUA:[],QUI:[],SEX:[],SAB:[],DOM:[]};
     const rotaMap={};
     rotasRows.forEach(r=>{
+      if(!paradaValida(r)) return;
       const key=r.Dia+'|'+r.RotaNum;
       if(!rotaMap[key]){
         const obj={num:r.RotaNum,motorista:r.Motorista,ajudante:r.Ajudante,link_maps:r.LinkMaps,paradas:[]};
@@ -273,7 +291,7 @@
     Object.values(dias).forEach(rs=>rs.forEach(rt=>rt.paradas.forEach(p=>{p.itens=itensFromDet(DET[p.pedido]);})));
     const equipDia={},diaData={};
     equipRows.forEach(e=>{
-      (equipDia[e.Dia]=equipDia[e.Dia]||[]).push({tipo:e.Equipamento,sede:Number(e.SEDE)||0,d1:Number(e.D1)||0});
+      (equipDia[e.Dia]=equipDia[e.Dia]||[]).push({tipo:e.Equipamento,sede:Number(e.SEDE)||0,d1:Number(e.D1)||0,reap:Number(e.REAP)||0,ret:Number(e.RET)||0});
       diaData[e.Dia]=e.Data;
     });
     return {dias,DETALHES:DET,equip_por_dia:equipDia,diaData};
@@ -451,6 +469,10 @@
     return `<p class="equip-intro"><b>SEDE</b> = disponível na sede para encaixe no dia. <b>D+1</b> = com quanto começo o dia seguinte.</p>`+
       lista.map(e=>{
         const low=e.sede<=2;
+        const partes=[];
+        if(e.reap>0) partes.push(`${e.reap} reaproveitad${e.reap>1?'os':'o'}`);
+        if(e.ret>0) partes.push(`${e.ret} retorna${e.ret>1?'m':''} à sede`);
+        const sub=partes.length?`<div class="equip-sub">${partes.join('  ·  ')}</div>`:'';
         return `<div class="equip-card">
           <div class="equip-row">
             <span class="tipo">${formatTipo(e.tipo)}</span>
@@ -459,6 +481,7 @@
               <span class="b d1"><span class="n">${e.d1}</span><span class="l">D+1 (amanhã)</span></span>
             </span>
           </div>
+          ${sub}
         </div>`;
       }).join("");
   }
