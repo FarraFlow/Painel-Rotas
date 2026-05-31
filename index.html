@@ -138,7 +138,9 @@
   .q-mono{font-family:'IBM Plex Mono',monospace;}
   .q-cli{font-weight:600;}
   .q-ev{color:var(--amber-deep);font-weight:600;}
-  .q-rota td{background:var(--paper-2);font-weight:700;font-size:11px;letter-spacing:0.3px;color:var(--ink);border-top:2px solid var(--line-strong);font-family:'IBM Plex Mono',monospace;}
+  .q-rota td{background:var(--paper-2);font-weight:700;font-size:11px;letter-spacing:0.3px;color:var(--ink);border-top:2px solid var(--line-strong);font-family:'IBM Plex Mono',monospace;padding:0!important;}
+  .q-rota-label{position:sticky;left:0;display:inline-block;padding:7px 14px 7px 11px;background:var(--paper-2);}
+  .cli-st{font-size:14px;margin-left:6px;vertical-align:middle;}
   .q-table .op{font-size:10px;padding:2px 7px;}
   .q-st{position:sticky;left:0;z-index:2;background:var(--card);text-align:center;padding:4px 6px!important;box-shadow:1px 0 0 var(--line);}
   .q-head td:first-child{position:sticky;left:0;z-index:3;background:var(--ink);box-shadow:1px 0 0 var(--ink);}
@@ -385,6 +387,13 @@
     const st=STATUS_MAP[statusKey(p)]||'';
     return `<td class="q-st"><button class="st-btn" onclick="toggleStatus(this,'${p.pedido}','${String(p.op||'').toUpperCase().trim()}')">${iconStatus(st)}</button></td>`;
   }
+  // Emblema só-leitura para a Detalhada (em branco quando não marcado).
+  function statusBadge(p){
+    if(!statusAtivo(p)) return '';
+    const st=STATUS_MAP[statusKey(p)]||'';
+    if(st!=='ok' && st!=='nao') return '';
+    return ` <span class="cli-st">${st==='ok'?'✅':'❌'}</span>`;
+  }
   const DIAS_LABEL={SEG:"Seg",TER:"Ter",QUA:"Qua",QUI:"Qui",SEX:"Sex",SAB:"Sáb",DOM:"Dom"};
   const SEDE="RUA MAXWELL, 418 - ANDARAÍ, RIO DE JANEIRO";  // origem das rotas
   const OPS_VALIDAS=["MONTAGEM","RECOLHA","ENTREGA","RECARREGAR"];
@@ -469,7 +478,7 @@
               ${p.regiao?`<span class="regiao">${p.regiao}</span>`:''}
               ${p.empresa?`<span class="empresa">${p.empresa}</span>`:''}
             </div>
-            <div class="cliente">${p.cliente}</div>
+            <div class="cliente">${p.cliente}${statusBadge(p)}</div>
             ${temVendedor(p.vendedor)?`<div class="stop-line"><span class="vend-lbl">Vendedor</span>${p.vendedor}</div>`:''}
             <div class="horarios">
               <div class="h"><span class="lbl">Hr. Prévio</span><span class="val">${p.previo||'—'}</span></div>
@@ -502,7 +511,7 @@
     let rows='';
     rotas.forEach(r=>{
       const crew=r.ajudante?`${r.motorista} / ${r.ajudante}`:r.motorista;
-      rows+=`<tr class="q-rota"><td colspan="${cols.length}">ROTA ${r.num} \u00b7 ${crew}</td></tr>`;
+      rows+=`<tr class="q-rota"><td colspan="${cols.length}"><span class="q-rota-label">ROTA ${r.num} \u00b7 ${crew}</span></td></tr>`;
       rows+=`<tr class="q-head">${cols.map(c=>`<td>${c}</td>`).join('')}</tr>`;
       r.paradas.forEach(p=>{
         rows+=`<tr>
