@@ -151,6 +151,9 @@
   .q-rota td{background:var(--paper-2);font-weight:700;font-size:11px;letter-spacing:0.3px;color:var(--ink);border-top:2px solid var(--line-strong);font-family:'IBM Plex Mono',monospace;padding:0!important;}
   .q-rota-label{position:sticky;left:0;display:inline-block;padding:7px 14px 7px 11px;background:var(--paper-2);}
   .cli-st{font-size:14px;margin-left:6px;vertical-align:middle;}
+  .q-maprow td{background:var(--card);padding:0!important;border-bottom:7px solid var(--paper-2);}
+  .q-maplink{position:sticky;left:0;display:inline-block;padding:7px 11px 9px;font-size:11px;color:var(--ink-soft);text-decoration:none;font-family:'IBM Plex Mono',monospace;letter-spacing:0.2px;}
+  .q-maplink:active{color:var(--amber);}
   .q-table .op{font-size:10px;padding:2px 7px;}
   .q-st{position:sticky;left:0;z-index:2;background:var(--card);text-align:center;padding:4px 6px!important;box-shadow:1px 0 0 var(--line);}
   .q-head td:first-child{position:sticky;left:0;z-index:3;background:var(--ink);box-shadow:1px 0 0 var(--ink);}
@@ -544,6 +547,9 @@
           <td class="q-mono q-ev">${p.evento||'\u2014'}</td>
         </tr>`;
       });
+      if(r.link_maps && /^https?:/.test(r.link_maps)){
+        rows+=`<tr class="q-maprow"><td colspan="${cols.length}"><a class="q-maplink" href="${r.link_maps}" target="_blank" rel="noopener">Ver rota no Maps \u2197</a></td></tr>`;
+      }
     });
     return `<p class="q-hint">\u2194 Arraste para o lado para ver todas as colunas \u00b7 gire o celular para ver mais.</p>
       <div class="q-wrap"><table class="q-table">
