@@ -625,8 +625,8 @@
       const itens=(p.itens||[]).map(it=>`<span class="it">${it}</span>`).join("");
       const equipe=p.motorista?`${p.motorista}${p.ajudante?` / ${p.ajudante}`:''}`:'';
       const entry=(DADOS.pedidoMap&&DADOS.pedidoMap[p.pedido])||{};
-      const both=!!entry.entrega && !!entry.recolha;
       const cardSide=p.op==='RECOLHA'?'recolha':'entrega';
+      const both=!!entry.entrega && !!entry.recolha && cardSide==='entrega';
       const pickHtml = both ? `<div class="vc-pick"><span class="vc-pick-lbl">Incluir na mensagem:</span><label class="vc-chk"><input type="checkbox" id="chk-ent-${idx}" ${cardSide==='entrega'?'checked':''}><span>Entrega</span></label><label class="vc-chk"><input type="checkbox" id="chk-rec-${idx}" ${cardSide==='recolha'?'checked':''}><span>Recolha</span></label></div>` : '';
       return `<div class="vcard">
         <div class="vc-top">
