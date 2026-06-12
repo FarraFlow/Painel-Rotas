@@ -320,7 +320,7 @@
       }
       rotaMap[key].paradas.push({pedido:r.Pedido,vendedor:r.Vendedor,op:r.Operacao,empresa:r.Empresa,
         local:r.Local,regiao:r.Regiao,cliente:r.Cliente,previo:normHora(r.HrPrevio),partir:r.APartirDe,
-        evento:r.Evento,endereco:r.Endereco,
+        evento:r.Evento,endereco:r.Endereco,telefone:r.Telefone||'',
         barris:[{tam:'10L',q:Number(r.B10)||0},{tam:'20L',q:Number(r.B20)||0},{tam:'30L',q:Number(r.B30)||0},{tam:'50L',q:Number(r.B50)||0}]});
     });
     const DET={};
@@ -630,12 +630,13 @@
       const both=!!entry.entrega && !!entry.recolha && cardSide==='entrega';
       const pickHtml = both ? `<div class="vc-pick"><span class="vc-pick-lbl">Incluir na mensagem:</span><label class="vc-chk"><input type="checkbox" id="chk-ent-${idx}" ${cardSide==='entrega'?'checked':''}><span>Entrega</span></label><label class="vc-chk"><input type="checkbox" id="chk-rec-${idx}" ${cardSide==='recolha'?'checked':''}><span>Recolha</span></label></div>` : '';
       return `<div class="vcard">
-        <div class="vc-top">
+        <div class="stop-top">
+          ${p.pedido&&p.pedido!=='—'?`<span class="pedido">#${p.pedido}</span>`:''}
           <span class="op ${opClass(p.op)}">${p.op}</span>
-          ${p.regiao?`<span class="vc-reg">${p.regiao}</span>`:''}
+          ${p.regiao?`<span class="regiao">${p.regiao}</span>`:''}
+          ${p.empresa?`<span class="empresa">${p.empresa}</span>`:''}
         </div>
         <div class="vc-cli">${p.cliente}</div>
-        ${p.empresa?`<div class="vc-emp">${p.empresa}</div>`:''}
         ${equipe?`<div class="vc-crew">🚚 ${isRec?'Recolha':'Entrega'} por <b>${equipe}</b></div>`:''}
         ${j?`<div class="vc-janela ${isRec?'rec':''}"><span class="l">${labelJ}</span><br><span class="v">${j}</span></div>`:''}
         ${itens?`<div class="vc-itens"><span class="vc-itens-lbl">${isRec?'Equipamentos a recolher':'Itens do pedido'}</span>${itens}</div>`:''}
@@ -726,7 +727,11 @@
   }
 
   function shareWhats(idx){
-    window.open('https://wa.me/?text='+encodeURIComponent(buildMsgVendedor(idx)),'_blank');
+    const p=(window.__vendList||[])[idx];
+    const tel=p&&p.telefone?p.telefone.replace(/\D/g,''):'';
+    const msg=encodeURIComponent(buildMsgVendedor(idx));
+    const base=tel?('https://wa.me/55'+tel):'https://wa.me/';
+    window.open(base+'?text='+msg,'_blank');
   }
 
   async function copyMsg(idx, btn){
